@@ -1,0 +1,18 @@
+# Ignore vendor and environment files
+/vendor/
+/.env
+/.DS_Store
+
+# Ignore logs and cache
+logs/
+*.log
+
+# Ignore test output
+/phpunit.xml
+/test-output/
+/coverage/
+
+# Ignore IDE and OS files
+.idea/
+.vscode/
+Thumbs.db
