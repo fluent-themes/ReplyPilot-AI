@@ -1,11 +1,20 @@
-# Ignore vendor and environment files
-/vendor/
+# Ignore environment files
 /.env
 /.DS_Store
 
-# Ignore logs and cache
-logs/
+# Ignore logs and artifacts
+storage/logs/*
+!storage/logs/.gitkeep
+storage/mail/*
+!storage/mail/.gitkeep
+storage/mock_env/*
+!storage/mock_env/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
 *.log
+*.eml
+*.error_log
+/vendor/
 
 # Ignore test output
 /phpunit.xml

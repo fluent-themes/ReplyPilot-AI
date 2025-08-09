@@ -1,0 +1,29 @@
+name: debug-artifact
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: MOCK_MODE
+      MAIL_TRANSPORT: file
+      DB_CONNECTION: none
+      INSTALLER_MOCK: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - run: cp .env.example .env
+      - run: composer install --no-interaction --no-progress
+      - run: composer run test:pack
+      - name: Upload debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-${{ github.run_number }}
+          path: artifacts/debug-*.zip
+          if-no-files-found: error
