@@ -1,6 +1,6 @@
 # ReplyPilot AI
 
-**ReplyPilot AI** is a lightweight, modular PHP application that turns your contact form into an intelligent support responder — powered by OpenAI and integrated with optional license validation.
+**ReplyPilot AI** is a lightweight, modular PHP application that turns your contact form into an intelligent support responder — powered by OpenAI and integrated with optional license validation via 3rd party Envato Market license API.
 
 The system currently integrates the **Envato Market license API** and is designed to be easily extended to support other license APIs, AI models, and future use cases. It automatically replies to user messages in a custom tone (e.g., Friendly, Professional), categorizes submissions (Sales, Support, Spam), and stores everything securely in a MySQL database.
 
