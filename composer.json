@@ -1,0 +1,13 @@
+{
+    "name": "fluentthemes/ai-contact-form-auto-responder",
+    "description": "AI Contact Form Auto\u2011Responder",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\\\": "app/"
+        }
+    },
+    "require": {
+        "php": ">=8.0"
+    }
+}

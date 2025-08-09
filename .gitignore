@@ -1,10 +1,8 @@
-# Ignore vendor and environment files
-/vendor/
+# Ignore environment files
 /.env
 /.DS_Store
 
 # Ignore logs and cache
-logs/
 *.log
 
 # Ignore test output
