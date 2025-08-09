@@ -1,6 +1,32 @@
 {
-    "name": "fluentthemes/ai-contact-form-auto-responder",
-    "description": "AI Contact Form Auto\u2011Responder",
+    "name": "fluent-themes/replypilot-ai",
+    "description": "ReplyPilot AI — Modular PHP contact form assistant that uses OpenAI to auto-reply, categorize messages, and optionally validate customer purchase keys via any license API.",
+    "homepage": "https://github.com/fluent-themes/ReplyPilot-AI",
+    "support": {
+        "source": "https://github.com/fluent-themes/ReplyPilot-AI",
+        "issues": "https://github.com/fluent-themes/ReplyPilot-AI/issues"
+    },
+    "keywords": [
+        "php",
+        "ai",
+        "openai",
+        "gpt",
+        "contact-form",
+        "auto-responder",
+        "email-reply",
+        "customer-support",
+        "purchase-code-validation",
+        "license-api",
+        "api-integration",
+        "form-handler",
+        "message-categorization",
+        "tone-selector",
+        "modular-architecture",
+        "installer",
+        "phpmailer",
+        "mysql",
+        "oops"
+    ],
     "type": "project",
     "autoload": {
         "psr-4": {
