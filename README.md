@@ -31,12 +31,12 @@ ai-contact-form-auto-responder/
 │   ├── assets/           # CSS, JS, and favicon
 ├── admin/                # Admin dashboard
 │   ├── views/            # Templates
+│   ├── assets/           # CSS, JS
 ├── app/                  # Application logic
 │   ├── Core/, Support/, Services/, Http/, etc.
 │   ├── Installer/        # Setup logic for .env + DB
 │   └── Models/, Repositories/
-├── config/               # Config files
-├── database/             # Migration scripts
+├── docs/             	  # Documentation
 ├── logs/                 # Auto-generated logs
 ├── tests/                # PHPUnit-ready
 ├── .env.example
