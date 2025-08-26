@@ -1,0 +1,4 @@
+
+# Deny access to app/ etc if someone maps root to /
+RewriteEngine On
+RewriteRule ^(app|logs|vendor|tests|config|database)/ - [F,L]

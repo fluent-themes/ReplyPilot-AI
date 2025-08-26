@@ -1,0 +1,160 @@
+# Git Commit Messages Index
+# Format: <path> — <imperative commit message>
+# Generated: 2025-08-25
+
+# Root Configuration Files
+.editorconfig — Configure editor settings for consistent coding style
+.env.example — Add example environment configuration template
+.env.LaragonExample — Add Laragon-specific environment configuration example
+.env.production — Add production environment configuration template
+.gitattributes — Configure Git attributes for line endings and file handling
+.gitignore — Add Git ignore patterns for dependencies and generated files
+LICENSE — Add GPL license
+composer.json — Configure Composer dependencies and autoloading
+
+# Documentation Files
+AdminAudit.md — Document admin panel security audit findings
+EndpointMap.md — Map application endpoints and request handlers
+EndpointProposedFixing.md — Document proposed endpoint security fixes
+InstallerAudit.md — Document installer security audit results
+LaragonAudit.md — Document Laragon-specific configuration audit
+MailAudit.md — Document mail system security audit findings
+SummaryOfProposedChanges.md — Summarize all proposed system changes
+LARAGON_SETUP_STEPS.md — Document Laragon setup and configuration steps
+Gitrequired.txt — List required Git repository files
+MissingForGit.txt — Track missing Git repository files
+
+# Changelog and Build Files
+CHANGELOG_AI.md — Track AI-assisted development changes
+CHANGELOG_AI-old.md — Archive previous changelog entries
+build_fix_index.py — Build fix index automation script
+
+# Work Order Management
+WORK_ORDER.json — Track project work order and fix status
+WORK_ORDER.lock — Implement work order locking mechanism
+WORK_ORDER.oplog.ndjson — Log work order operations history
+
+# Core Bootstrap Files
+bootstrap.php — Initialize application bootstrap and autoloading
+Laragon_bootstrap.php — Configure Laragon-specific bootstrap settings
+
+# GitHub Configuration
+.github/ISSUE_TEMPLATE.md — Add GitHub issue template for bug reports
+.github/pull_request_template.md — Add pull request template for contributions
+.github/workflows/ci.yml — Configure GitHub Actions CI workflow
+
+# Documentation Directory
+docs/DEBUG.md — Document debugging procedures and troubleshooting
+docs/docs.txt — Add documentation index and structure notes
+
+# Application Core Components
+app/Core/Env.php — Implement environment variable management
+app/Core/Request.php — Handle HTTP request processing and validation
+app/Core/Response.php — Manage HTTP response generation and headers
+
+# Contracts and Interfaces
+app/Contracts/AIProviderInterface.php — Define AI provider interface contract
+app/Contracts/LicenseValidatorInterface.php — Define license validation interface
+
+# Factory Classes
+app/Factories/AIProviderFactory.php — Implement AI provider factory pattern
+app/Factories/LicenseValidatorFactory.php — Create license validator factory
+
+# Helper Classes
+app/Helpers/ModeHelper.php — Implement application mode detection helper
+app/Helpers/TicketHelper.php — Add ticket generation and validation helper
+
+# Installer Components
+app/Installer/EnvWriter.php — Implement environment file writer for setup
+app/Installer/Installer.php — Create main installer orchestration logic
+app/Installer/Migrator.php — Handle database migration execution
+app/Installer/SqlSchema.php — Define SQL schema and table structures
+
+# Registry Pattern
+app/Registry/ProviderRegistry.php — Implement provider registration system
+
+# Repository Pattern
+app/Repository/EmailRepository.php — Manage email data persistence layer
+app/Repository/SubmissionRepository.php — Handle submission data operations
+app/Repository/SubmissionRepositoryMock.php — Provide mock repository for testing
+
+# AI Service Providers
+app/Services/ClaudeProvider.php — Integrate Claude AI provider service
+app/Services/GeminiProvider.php — Integrate Google Gemini AI provider
+app/Services/OpenAIProvider.php — Integrate OpenAI GPT provider service
+app/Services/MockAIProvider.php — Implement mock AI provider for testing
+app/Services/OpenAIHandler.php — Handle OpenAI API communication
+app/Services/OpenAIHandlerMock.php — Mock OpenAI handler for testing
+
+# License Validators
+app/Services/EnvatoValidator.php — Validate Envato marketplace licenses
+app/Services/GumroadValidator.php — Validate Gumroad purchase licenses
+app/Services/StripeValidator.php — Validate Stripe payment licenses
+app/Services/LicenseValidator.php — Implement base license validation logic
+app/Services/MockLicenseValidator.php — Mock license validator for testing
+
+# Support Classes
+app/Support/Analytics.php — Implement analytics tracking and reporting
+app/Support/CategoryRules.php — Define category classification rules
+app/Support/Database.php — Manage database connections and queries
+app/Support/DatabaseMock.php — Mock database for testing environment
+app/Support/ErrorHandler.php — Handle application errors and exceptions
+app/Support/Logger.php — Implement logging system for debugging
+app/Support/Mailer.php — Handle email sending functionality
+app/Support/MailerMock.php — Mock mailer for testing environment
+app/Support/PromptOptimizer.php — Optimize AI prompts for better responses
+app/Support/ResponseCache.php — Cache AI responses for performance
+app/Support/Settings.php — Manage application settings and configuration
+
+# Admin Panel Core
+admin/.htaccess — Secure admin directory with access controls
+admin/index.php — Implement admin dashboard entry point
+admin/guard.php — Add authentication guard for admin access
+admin/settings.php — Create settings management interface
+admin/update_settings.php — Handle settings update operations
+admin/advanced_settings.php — Manage advanced configuration options
+admin/update_advanced_settings.php — Process advanced settings updates
+
+# Admin Analytics
+admin/analytics.php — Display analytics dashboard and metrics
+admin/clear_analytics.php — Clear analytics data functionality
+admin/export_analytics.php — Export analytics data to files
+admin/export_csv.php — Export data in CSV format
+admin/test_analytics.php — Test analytics tracking functionality
+
+# Admin Management Features
+admin/categories.php — Manage submission categories and rules
+admin/envato.php — Configure Envato integration settings
+admin/manage_cache.php — Manage application cache operations
+admin/send_email.php — Send test emails and notifications
+admin/system_health.php — Monitor system health and status
+admin/test_provider.php — Test AI provider connections
+admin/update_reply.php — Update automated reply templates
+
+# Admin Views
+admin/views/layout.php — Define admin panel layout template
+admin/views/submissions-table.php — Render submissions data table
+
+# Admin Assets
+admin/assets/css/admin.css — Style admin panel interface
+admin/assets/js/admin.js — Add admin panel JavaScript functionality
+admin/assets/js/ui.js — Implement UI interaction handlers
+admin/assets/js/ux.js — Enhance user experience interactions
+
+# Public Web Root
+public/.htaccess — Configure public directory access rules
+public/index.php — Main application entry point
+public/installer.php — Web-based installation wizard
+public/ajax-submit.php — Handle AJAX form submissions
+public/Laragon_ajax-submit.php — Laragon-specific AJAX handler
+public/thank-you.php — Display submission confirmation page
+public/ticket.php — Display ticket tracking interface
+
+# Public Assets
+public/assets/css/style.css — Style frontend user interface
+public/assets/js/main.js — Implement frontend JavaScript logic
+
+# Migration Scripts
+scripts/auto_migrate.php — Automate database migration process
+scripts/migrate_analytics_tables.php — Migrate analytics database tables
+scripts/post_install.php — Execute post-installation tasks
