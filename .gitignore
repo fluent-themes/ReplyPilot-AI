@@ -16,3 +16,7 @@ logs/
 .idea/
 .vscode/
 Thumbs.db
+*.swp
+*.swo
+*~
+.*.swp
