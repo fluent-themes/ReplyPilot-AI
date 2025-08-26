@@ -1,0 +1,13 @@
+# Exclude dev/CI/editor junk from GitHub source zips
+/.github/            export-ignore
+/.vscode/            export-ignore
+/.idea/              export-ignore
+/docs/               export-ignore
+
+# Exclude mocks and debug docs from distro
+/app/**/**/*Mock.php export-ignore
+/app/*/*Mock.php     export-ignore
+/docs/DEBUG.md       export-ignore
+
+# Keep these INCLUDED (don’t mark them export-ignore):
+# README.md, LICENSE, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, .editorconfig
