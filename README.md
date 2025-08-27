@@ -226,8 +226,8 @@ Enable debug mode for detailed error messages:
 - **Contributing Guide**: `CONTRIBUTING.md`
 
 ### ⚙️ Configuration Files
-- `.env.example` - Environment configuration template  
-- `.env.production` - Production environment template  
+- `.env.example` - Production environment template
+- `.env.mockmode` - Mock/Test environment template
 
 ---
 

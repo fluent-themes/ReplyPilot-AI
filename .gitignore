@@ -1,11 +1,12 @@
-# Ignore vendor and environment files
-/vendor/
+# Ignore environment files
 /.env
+/.env.testing
 /.DS_Store
 
 # Ignore logs and cache
-logs/
 *.log
+/storage/
+/vendor/
 
 # Ignore test output
 /phpunit.xml
