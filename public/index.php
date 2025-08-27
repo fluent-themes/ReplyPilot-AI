@@ -3,7 +3,6 @@
 * SPDX-License-Identifier: GPL-3.0-or-later
 * Copyright (c) 2025 Md Mazharul Islam / Fluent-Themes
 */
-
 require __DIR__ . '/../bootstrap.php';
 
 if (isset($_GET['page'])) {
