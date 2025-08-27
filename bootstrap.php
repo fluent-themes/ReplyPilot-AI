@@ -4,12 +4,6 @@
 * Copyright (c) 2025 Md Mazharul Islam / Fluent-Themes
 */
 
-use App\Core\Env;
-use App\Support\Database;
-use App\Support\DatabaseMock;
-use App\Support\Logger;
-use App\Helpers\ModeHelper;
-
 // Safe Composer autoload guard for shared hosting
 if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php')) {
     require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
@@ -26,6 +20,13 @@ if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR .
         });
     }
 }
+
+// Now that autoloader is ready, add use statements
+use App\Core\Env;
+use App\Support\Database;
+use App\Support\DatabaseMock;
+use App\Support\Logger;
+use App\Helpers\ModeHelper;
 
 // Bootstrap PHP logging to storage/logs/app.log
 $logDir = __DIR__ . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'logs';
