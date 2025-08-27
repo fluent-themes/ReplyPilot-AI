@@ -1,10 +1,28 @@
 <?php
 // Minimal AJAX controller for AI reply + ticket creation
+require __DIR__ . '/../bootstrap.php';
+
+use App\Core\Env;
+use App\Core\Request;
+use App\Services\OpenAIHandler;
+use App\Services\OpenAIHandlerMock;
+use App\Support\Settings;
+use App\Support\CategoryRules;
+use App\Repository\SubmissionRepository;
+use App\Repository\SubmissionRepositoryMock;
+use App\Support\Mailer;
+use App\Support\MailerMock;
+use App\Helpers\ModeHelper;
+use App\Helpers\TicketHelper;
+use App\Support\Analytics;
+use App\Support\ResponseCache;
+use App\Support\PromptOptimizer;
+use App\Factories\AIProviderFactory;
+
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 header('Content-Type: application/json; charset=utf-8');
 $request_id = bin2hex(random_bytes(6));
 try {
-    require __DIR__ . '/../bootstrap.php';
     $logger = $GLOBALS['container']['logger'];
     $db     = $GLOBALS['container']['db_factory'](); // Get DB connection from factory
     
@@ -40,23 +58,6 @@ try {
         exit;
     }
     $_SESSION['ajax_times'][] = $now;
-
-    use App\Core\Env;
-    use App\Core\Request;
-    use App\Services\OpenAIHandler;
-    use App\Services\OpenAIHandlerMock;
-    use App\Support\Settings;
-    use App\Support\CategoryRules;
-    use App\Repository\SubmissionRepository;
-    use App\Repository\SubmissionRepositoryMock;
-    use App\Support\Mailer;
-    use App\Support\MailerMock;
-    use App\Helpers\ModeHelper;
-    use App\Helpers\TicketHelper;
-    use App\Support\Analytics;
-    use App\Support\ResponseCache;
-    use App\Support\PromptOptimizer;
-    use App\Factories\AIProviderFactory;
 
     $name  = trim(Request::input('name'));
     $email = trim(Request::input('email'));
