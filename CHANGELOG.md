@@ -36,10 +36,6 @@
 - Fixed admin/advanced_settings.php: Added CSRF token generation in form
 - Fixed admin/categories.php: Added JSON size limit check (1MB max)
 - Fixed public/ajax-submit.php: Added admin notification control setting
-- Created Laragon_bootstrap.php: Added Laragon-specific session configuration for local development
-- Created public/Laragon_ajax-submit.php: Added CORS headers for Laragon local development
-- Created LARAGON_SETUP_STEPS.md: Comprehensive setup guide for Laragon environment
-- Created .env.LaragonExample: Example environment configuration for Laragon
 
 ### Repository Standards (Phase 1) - 2025-08-23
 - Created SECURITY.md: Security policy, vulnerability reporting guidelines, and best practices
