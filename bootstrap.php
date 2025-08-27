@@ -4,6 +4,12 @@
 * Copyright (c) 2025 Md Mazharul Islam / Fluent-Themes
 */
 
+use App\Core\Env;
+use App\Support\Database;
+use App\Support\DatabaseMock;
+use App\Support\Logger;
+use App\Helpers\ModeHelper;
+
 // Safe Composer autoload guard for shared hosting
 if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php')) {
     require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
@@ -29,12 +35,6 @@ ini_set('log_errors','1');
 ini_set('error_log', $logDir . DIRECTORY_SEPARATOR . 'app.log');
 
 // Load env and define request-scoped mock mode
-
-use App\Core\Env;
-use App\Support\Database;
-use App\Support\DatabaseMock;
-use App\Support\Logger;
-use App\Helpers\ModeHelper;
 
 Env::load(__DIR__ . DIRECTORY_SEPARATOR . '.env');
 
