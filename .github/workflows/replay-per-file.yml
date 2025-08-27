@@ -1,0 +1,146 @@
+name: Replay per-file commits from commits.txt
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: Branch that currently has the correct final files (the Codex-created branch)
+        required: true
+        default: codex/extract-app-zip
+      default_branch:
+        description: Default branch (main or Main)
+        required: true
+        default: main
+
+permissions:
+  contents: write  # allow pushing new branch
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    env:
+      LC_ALL: C.UTF-8
+      LANG: C.UTF-8
+    steps:
+      - name: Checkout repo (source branch)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.source_branch }}
+          fetch-depth: 0
+
+      - name: Fetch default branch
+        run: |
+          git fetch origin "${{ github.event.inputs.default_branch }}:${{ github.event.inputs.default_branch }}" --prune
+
+      - name: Compute merge base
+        id: base
+        run: |
+          BASE=$(git merge-base "origin/${{ github.event.inputs.source_branch }}" "origin/${{ github.event.inputs.default_branch }}" || git merge-base "${{ github.event.inputs.source_branch }}" "origin/${{ github.event.inputs.default_branch }}")
+          echo "base=$BASE" >> $GITHUB_OUTPUT
+
+      - name: Snapshot current tree from source branch
+        run: |
+          mkdir -p /tmp/snap
+          git archive --format=tar "origin/${{ github.event.inputs.source_branch }}" | tar -x -C /tmp/snap
+
+      - name: Create replay branch from merge base
+        id: replay
+        run: |
+          BR="codex/replay-$(date -u +%Y%m%d-%H%M)"
+          git checkout -B "$BR" "${{ steps.base.outputs.base }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "branch=$BR" >> $GITHUB_OUTPUT
+
+      - name: Build commit plan from commits.txt
+        id: plan
+        run: |
+          python3 - << 'PY'
+          import sys, os, json, pathlib
+          snap = pathlib.Path("/tmp/snap")
+          ct = (snap/"commits.txt")
+          mappings = []
+          if ct.exists():
+              data = ct.read_text(encoding="utf-8").splitlines()
+              seps = ["—","–","->",":","|"]  # EM DASH first
+              idx = 0
+              last_idx = {}
+              parsed = []
+              for line in data:
+                  s=line.strip()
+                  if not s or s.startswith("#"):
+                      idx+=1; continue
+                  left=None; right=None; sep_used=None
+                  for sep in seps:
+                      if sep in s:
+                          parts=s.split(sep,1)
+                          left=parts[0].strip(); right=parts[1].strip(); sep_used=sep; break
+                  if left is None or right is None or not left:
+                      idx+=1; continue
+                  parsed.append((left,right,idx))
+                  last_idx[left]=idx
+                  idx+=1
+              # Keep only last occurrence, preserve order by that last index
+              keep = {}
+              for pth,msg,i in parsed:
+                  if last_idx.get(pth)==i:
+                      keep[pth]=(msg,i)
+              plan = sorted([(pth,msg_i[0],msg_i[1]) for pth,msg_i in keep.items()], key=lambda t:t[2])
+              # write plan file: path|||message
+              out = snap.parent/"plan.txt"
+              with out.open("w", encoding="utf-8") as f:
+                  for pth,msg,_i in plan:
+                      f.write(f"{pth}|||{msg}\n")
+          else:
+              # no commits.txt; create empty plan
+              (snap.parent/"plan.txt").write_text("", encoding="utf-8")
+          PY
+
+      - name: Replay commits from commits.txt
+        run: |
+          set -euo pipefail
+          touch /tmp/already.txt /tmp/skipped.txt
+          PLAN="/tmp/plan.txt"
+          [ -f "$PLAN" ] || PLAN="/tmp/plan.txt"; # created by previous step
+          # If plan.txt wasn’t created, create it now (empty)
+          [ -f "$PLAN" ] || : > "$PLAN"
+
+          while IFS= read -r line; do
+            [ -n "$line" ] || continue
+            path="${line%%|||*}"
+            msg="${line#*|||}"
+            if [ -f "/tmp/snap/$path" ]; then
+              mkdir -p "$(dirname -- "$path")"
+              cp -f "/tmp/snap/$path" "$path"
+              git add -- "$path"
+              git commit -m "$msg"
+              echo "$path" >> /tmp/already.txt
+            else
+              echo "$path" >> /tmp/skipped.txt
+            fi
+          done < /tmp/plan.txt
+
+      - name: Commit remaining files (not in commits.txt)
+        run: |
+          set -euo pipefail
+          cd /tmp/snap
+          # list all files including dotfiles (exclude .git if present)
+          find . -type f ! -path './.git/*' -print0 | xargs -0 -I{} realpath --relative-to=/tmp/snap "{}" | sort -u > /tmp/all.txt
+          cd -
+          sort -u /tmp/already.txt > /tmp/already.sorted || true
+          comm -23 /tmp/all.txt /tmp/already.sorted > /tmp/remaining.txt || true
+
+          while IFS= read -r path; do
+            [ -n "$path" ] || continue
+            mkdir -p "$(dirname -- "$path")"
+            cp -f "/tmp/snap/$path" "$path"
+            git add -- "$path"
+            # short, conventional subject
+            base="$(basename -- "$path")"
+            git commit -m "Add ${base} (${path})"
+          done < /tmp/remaining.txt
+
+      - name: Push replay branch
+        run: |
+          git push -u origin "${{ steps.replay.outputs.branch }}"
+          echo "compare=https://github.com/${{ github.repository }}/compare/${{ github.event.inputs.default_branch }}...${{ steps.replay.outputs.branch }}" >> $GITHUB_OUTPUT
