@@ -1,6 +1,7 @@
 {
   "name": "fluentthemes/replypilot-ai",
   "description": "AI Contact Form Auto Responder",
+  "license": "GPL-3.0-or-later",
   "type": "project",
   "require": {
     "php": ">=7.4",
