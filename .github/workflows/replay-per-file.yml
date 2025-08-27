@@ -1,0 +1,119 @@
+name: Replay per-file commits from commits.txt
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: Branch that currently has the correct final files (the Codex-created branch)
+        required: true
+        default: codex/extract-app-zip-and-commit-files
+      default_branch:
+        description: Default branch (main or Main)
+        required: true
+        default: main
+
+permissions:
+  contents: write
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.source_branch }}
+          fetch-depth: 0
+
+      - name: Fetch default branch
+        run: git fetch origin "${{ github.event.inputs.default_branch }}:${{ github.event.inputs.default_branch }}" --prune
+
+      - name: Compute merge base (HEAD vs default)
+        id: base
+        run: |
+          set -e
+          BASE=$(git merge-base HEAD "origin/${{ github.event.inputs.default_branch }}")
+          echo "base=$BASE" >> $GITHUB_OUTPUT
+
+      - name: Snapshot current tree from source branch (HEAD)
+        run: |
+          mkdir -p /tmp/snap
+          git archive --format=tar HEAD | tar -x -C /tmp/snap
+
+      - name: Create replay branch from merge base
+        id: replay
+        run: |
+          set -e
+          BR="codex/replay-$(date -u +%Y%m%d-%H%M)"
+          git checkout -B "$BR" "${{ steps.base.outputs.base }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "branch=$BR" >> $GITHUB_OUTPUT
+
+      - name: Build commit plan from commits.txt
+        run: |
+          python3 - << 'PY'
+          import pathlib
+          snap = pathlib.Path("/tmp/snap")
+          ct = snap/"commits.txt"
+          seps = ["—","–","->",":","|"]  # EM DASH first
+          lines = []
+          if ct.exists():
+            raw = ct.read_text(encoding="utf-8").splitlines()
+            last = {}
+            parsed = []
+            for i, s in enumerate(map(str.strip, raw)):
+              if not s or s.startswith("#"): continue
+              left = right = None
+              for sep in seps:
+                if sep in s:
+                  left, right = map(str.strip, s.split(sep, 1))
+                  break
+              if left and right:
+                parsed.append((left, right, i))
+                last[left] = i
+            keep = [(p, m, i) for (p, m, i) in parsed if last.get(p) == i]
+            lines = [f"{p}|||{m}" for (p, m, _) in sorted(keep, key=lambda t: t[2])]
+          (snap.parent/"plan.txt").write_text("\n".join(lines), encoding="utf-8")
+          PY
+
+      - name: Replay commits from commits.txt
+        run: |
+          set -euo pipefail
+          git config advice.addIgnoredFile false
+          touch /tmp/already.txt /tmp/skipped.txt
+          while IFS= read -r line; do
+            [ -n "$line" ] || continue
+            path="${line%%|||*}"
+            msg="${line#*|||}"
+            if [ -f "/tmp/snap/$path" ]; then
+              mkdir -p "$(dirname -- "$path")"
+              cp -f "/tmp/snap/$path" "$path"
+              git add -f -- "$path"          # <-- force-add ignored paths
+              git commit -m "$msg"
+              echo "$path" >> /tmp/already.txt
+            else
+              echo "$path" >> /tmp/skipped.txt
+            fi
+          done < /tmp/plan.txt
+
+      - name: Commit remaining files (not in commits.txt)
+        run: |
+          set -euo pipefail
+          ( cd /tmp/snap && find . -type f ! -path './.git/*' -print | sed 's#^\./##' | sort -u ) > /tmp/all.txt
+          sort -u /tmp/already.txt > /tmp/already.sorted || true
+          comm -23 /tmp/all.txt /tmp/already.sorted > /tmp/remaining.txt || true
+          while IFS= read -r p; do
+            [ -n "$p" ] || continue
+            mkdir -p "$(dirname -- "$p")"
+            cp -f "/tmp/snap/$p" "$p"
+            git add -f -- "$p"              # <-- force-add ignored paths
+            git commit -m "Add $(basename -- "$p") ($p)"
+          done < /tmp/remaining.txt
+
+      - name: Push replay branch and print compare URL
+        run: |
+          set -e
+          git push -u origin "${{ steps.replay.outputs.branch }}"
+          echo "Compare URL:"
+          echo "https://github.com/${{ github.repository }}/compare/${{ github.event.inputs.default_branch }}...${{ steps.replay.outputs.branch }}"
