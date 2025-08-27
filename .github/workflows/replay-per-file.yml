@@ -80,6 +80,7 @@ jobs:
       - name: Replay commits from commits.txt
         run: |
           set -euo pipefail
+          git config advice.addIgnoredFile false
           touch /tmp/already.txt /tmp/skipped.txt
           while IFS= read -r line; do
             [ -n "$line" ] || continue
@@ -88,7 +89,7 @@ jobs:
             if [ -f "/tmp/snap/$path" ]; then
               mkdir -p "$(dirname -- "$path")"
               cp -f "/tmp/snap/$path" "$path"
-              git add -- "$path"
+              git add -f -- "$path"          # <-- force-add ignored paths
               git commit -m "$msg"
               echo "$path" >> /tmp/already.txt
             else
@@ -106,7 +107,7 @@ jobs:
             [ -n "$p" ] || continue
             mkdir -p "$(dirname -- "$p")"
             cp -f "/tmp/snap/$p" "$p"
-            git add -- "$p"
+            git add -f -- "$p"              # <-- force-add ignored paths
             git commit -m "Add $(basename -- "$p") ($p)"
           done < /tmp/remaining.txt
 
