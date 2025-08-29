@@ -14,7 +14,10 @@ try {
     
     $db = $GLOBALS['container']['db'];
     if (!$db) {
-        throw new Exception('Database connection not available');
+        http_response_code(503);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Database unavailable']);
+        exit;
     }
     $stmt = $db->query('SELECT id,name,email,message,tone,purchase_code,product_name,category,ai_reply,created_at FROM submissions ORDER BY id DESC');
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
