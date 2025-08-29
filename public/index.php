@@ -3,7 +3,18 @@
 * SPDX-License-Identifier: GPL-3.0-or-later
 * Copyright (c) 2025 Md Mazharul Islam / Fluent-Themes
 */
+
 require __DIR__ . '/../bootstrap.php';
+
+// Start session for CSRF token
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Generate CSRF token if not exists
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 if (isset($_GET['page'])) {
     if ($_GET['page'] === 'install') {
@@ -49,11 +60,16 @@ $purchaseCodeEnabled = Settings::get('purchase_code_enabled', false);
 $purchaseCodeRequired = Settings::get('purchase_code_required', false);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name  = trim(Request::input('name'));
-    $email = trim(Request::input('email'));
-    $msg   = trim(Request::input('message'));
-    $tone  = trim(Request::input('tone', 'friendly'));
-    $purchase = trim(Request::input('purchase_code', ''));
+    // Validate CSRF token
+    $csrf_token = Request::input('csrf_token', '');
+    if (!hash_equals($_SESSION['csrf_token'], $csrf_token)) {
+        $error = 'Invalid request. Please try again.';
+    } else {
+        $name  = trim(Request::input('name'));
+        $email = trim(Request::input('email'));
+        $msg   = trim(Request::input('message'));
+        $tone  = trim(Request::input('tone', 'friendly'));
+        $purchase = trim(Request::input('purchase_code', ''));
     
     // Validate purchase code if needed
     $productName = '';
@@ -105,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: thank-you.php?ref=' . urlencode($ref));
         exit;
     }
+    }
 }
 ?>
 <!doctype html>
@@ -115,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Contact Support — ReplyPilot</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <script src="assets/js/main.js" defer></script>
+  <!-- Enable AJAX if needed by adding data-ajax="true" to the form -->
 </head>
 <body>
   <main class="container">
@@ -127,6 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <?php if(!empty($error)): ?>
             <div class="note danger"><?= htmlspecialchars($error) ?></div>
           <?php endif; ?>
+          
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
           <div class="form-row">
             <div>
