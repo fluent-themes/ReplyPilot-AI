@@ -20,7 +20,7 @@ try {
         $result = $instance->testConnection();
         
         echo json_encode([
-            'ok' => true,
+            'success' => true,
             'data' => [
                 'success' => $result['available'] ?? false,
                 'message' => $result['message'] ?? 'Test completed',
@@ -34,7 +34,7 @@ try {
         $result = $instance->testConnection();
         
         echo json_encode([
-            'ok' => true,
+            'success' => true,
             'data' => [
                 'success' => $result['connected'] ?? false,
                 'message' => $result['message'] ?? 'Test completed',
@@ -51,7 +51,7 @@ try {
 } catch (\Throwable $e) {
     http_response_code(400);
     echo json_encode([
-        'ok' => false,
+        'success' => false,
         'error' => [
             'id' => 'provider_test_failed',
             'message' => 'Test failed: ' . $e->getMessage(),
