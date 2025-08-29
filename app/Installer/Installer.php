@@ -134,6 +134,31 @@ class Installer {
             EnvWriter::write($envData, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '.env');
             self::logLine('Wrote .env with ' . count($envData) . ' keys (secrets masked).');
             
+            // Set proper permissions on storage directories
+            $storageDirs = [
+                __DIR__ . '/../../storage',
+                __DIR__ . '/../../storage/logs',
+                __DIR__ . '/../../storage/mail',
+                __DIR__ . '/../../storage/cache'
+            ];
+            
+            foreach ($storageDirs as $dir) {
+                if (!is_dir($dir)) {
+                    @mkdir($dir, 0755, true);
+                    self::logLine('Created directory: ' . basename($dir));
+                }
+                
+                // Attempt to set permissions (may fail on Windows)
+                if (PHP_OS_FAMILY !== 'Windows') {
+                    @chmod($dir, 0755);
+                    
+                    // Verify writability
+                    if (!is_writable($dir)) {
+                        self::logLine('Warning: Directory not writable: ' . basename($dir));
+                    }
+                }
+            }
+            
             try {
                 self::logLine('Starting database setup phase');
                 
@@ -258,6 +283,16 @@ class Installer {
             return;
         }
         
+        // Check directory permissions and warn if issues
+        $permissionIssues = [];
+        $checkDirs = ['storage', 'storage/logs', 'storage/mail'];
+        foreach ($checkDirs as $dir) {
+            $fullPath = __DIR__ . '/../../' . $dir;
+            if (is_dir($fullPath) && !is_writable($fullPath)) {
+                $permissionIssues[] = $dir;
+            }
+        }
+        
         // Enhanced installer form with collapsible advanced options
         echo '<!DOCTYPE html><html><head><title>ReplyPilot AI - Installer</title><style>';
         echo 'body{font-family:system-ui;max-width:600px;margin:60px auto;padding:20px;line-height:1.6}';
@@ -270,6 +305,13 @@ class Installer {
         echo '</style></head><body>';
         echo '<h1>🚀 ReplyPilot AI Installer</h1>';
         echo '<p>Let\'s set up your AI-powered support system.</p>';
+        
+        if (!empty($permissionIssues)) {
+            echo '<div style="background:#fff3cd;border:1px solid #ffc107;padding:10px;margin:20px 0;border-radius:4px;">';
+            echo '<strong>⚠️ Permission Notice:</strong> The following directories need write permissions: ';
+            echo implode(', ', $permissionIssues);
+            echo '</div>';
+        }
         echo '<form method="post">';
         echo '<h3>Database Configuration</h3>';
         echo '<div class="form-group"><label>Database Host</label><input name="db_host" value="127.0.0.1" required></div>';
