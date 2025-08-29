@@ -16,6 +16,7 @@
       var links = nav.querySelectorAll('[data-tab-target], a[href^="#"]');
 
       function idForLink(a){
+        if(!a) return null;
         return a.getAttribute('data-tab-target') || (a.getAttribute('href') || '').replace(/^.*#/, '');
       }
 
@@ -54,7 +55,7 @@
             var url = location.pathname + location.search + hash;
             history.replaceState(null, '', url);
           }
-        } catch(_) {}
+        } catch(e) { console.error('Failed to update URL hash:', e); }
       });
     });
   }

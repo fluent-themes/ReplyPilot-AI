@@ -33,7 +33,7 @@
       } else {
         const ta = document.createElement('textarea');
         ta.value = txt; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); toast('Copied reply'); } catch(e){}
+        try { document.execCommand('copy'); toast('Copied reply'); } catch(e){ console.error('Copy fallback failed:', e); }
         document.body.removeChild(ta);
       }
     }

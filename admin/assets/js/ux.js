@@ -5,10 +5,10 @@
 (function(){
   // Minimal toast (only defines if not present)
   if (typeof window.toast !== 'function') {
-    window.toast = function(msg, ms){ 
+    window.toast = function(msg, ms = 2200){ 
       var t = document.getElementById('toast'); if(!t) return;
       t.textContent = msg; t.classList.add('show');
-      setTimeout(function(){ t.classList.remove('show'); }, ms || 2200);
+      setTimeout(function(){ t.classList.remove('show'); }, ms);
     };
   }
 
