@@ -148,7 +148,7 @@ class OpenAIProvider implements AIProviderInterface
                     'options' => [
                         'gpt-5-nano' => 'GPT-4o Mini (Recommended)',
                         'gpt-4o' => 'GPT-4o (Higher Quality)',
-                        'gpt-3.5-turbo' => 'GPT-3.5 Turbo (Budget)'
+                        'gpt-5-nano' => 'GPT-3.5 Turbo (Budget)'
                     ],
                     'default' => 'gpt-5-nano'
                 ],
