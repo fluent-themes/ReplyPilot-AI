@@ -1,8 +1,8 @@
 <?php
 require __DIR__ . '/../bootstrap.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require __DIR__ . '/guard.php';
 use App\Support\Settings;
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $pv  = Settings::get('purchase_validation_enabled', false);
 $pce = Settings::get('purchase_code_enabled', false);
 $pcr = Settings::get('purchase_code_required', false);
