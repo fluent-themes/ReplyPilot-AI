@@ -4,10 +4,14 @@ require __DIR__ . '/../bootstrap.php';
 use App\Installer\Migrator;
 use App\Support\Logger;
 
-// Security check - only allow in development or with specific token
-if (!isset($_GET['token']) || $_GET['token'] !== 'migrate_' . date('Ymd')) {
+// Security check - allow with install token OR date-based token
+$providedToken = $_GET['token'] ?? '';
+$dateToken = 'migrate_' . date('Ymd');
+$installToken = \App\Core\Env::get('INSTALL_TOKEN', 'setup123');
+
+if ($providedToken !== $dateToken && $providedToken !== $installToken) {
     http_response_code(403);
-    die('Access denied. Use token: migrate_' . date('Ymd'));
+    die('Access denied. Use token: ' . $dateToken . ' or your installer token');
 }
 
 $migrator = new Migrator();
