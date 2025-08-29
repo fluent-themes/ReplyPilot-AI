@@ -148,6 +148,28 @@ try {
         }
     }
 
+    // Handle installer token update (updates .env file)
+    if (isset($_POST['installer_token']) && trim($_POST['installer_token']) !== '') {
+        $newToken = trim($_POST['installer_token']);
+        $envPath = __DIR__ . '/../.env';
+        
+        if (file_exists($envPath)) {
+            try {
+                \App\Installer\EnvWriter::update(['INSTALL_TOKEN' => $newToken], $envPath);
+                
+                // Keep current session active - new token required only for new sessions
+                // Admin stays logged in but next login requires new token
+                $_SESSION['token_updated_notice'] = 'Installer token updated. New token will be required for next login.';
+                
+                // Log the token change
+                $logger = $GLOBALS['container']['logger'];
+                $logger->info('Installer token updated via admin panel');
+            } catch (\Exception $e) {
+                error_log('Failed to update installer token: ' . $e->getMessage());
+            }
+        }
+    }
+
     header('Location: advanced_settings.php?saved=1');
     exit;
 
