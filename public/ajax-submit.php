@@ -1,5 +1,6 @@
 <?php
 // Minimal AJAX controller for AI reply + ticket creation
+ob_start(); // Start output buffering to prevent headers already sent errors
 require __DIR__ . '/../bootstrap.php';
 
 use App\Core\Env;
@@ -20,6 +21,7 @@ use App\Support\PromptOptimizer;
 use App\Factories\AIProviderFactory;
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
+ob_clean(); // Clear any output that may have occurred during bootstrap
 header('Content-Type: application/json; charset=utf-8');
 $request_id = bin2hex(random_bytes(6));
 try {
@@ -29,7 +31,7 @@ try {
     // Check if database is available
     if (!$db) {
         echo json_encode([
-            'ok' => false,
+            'success' => false,
             'error' => [
                 'id' => 'database_unavailable',
                 'message' => 'Database connection unavailable. Please complete installation.',
@@ -46,8 +48,12 @@ try {
     if (count($_SESSION['ajax_times']) >= 6) {
         error_log('AJAX rate limit hit id='.$request_id.' ip='.($_SERVER['REMOTE_ADDR'] ?? ''));
         http_response_code(429);
+        header('X-RateLimit-Limit: 6');
+        header('X-RateLimit-Remaining: 0');
+        header('X-RateLimit-Reset: ' . (time() + 60));
+        header('Retry-After: 60');
         echo json_encode([
-            'ok' => false,
+            'success' => false,
             'error' => [
                 'id' => 'rate_limit_exceeded',
                 'message' => 'Rate limit exceeded. Please wait and try again.',
@@ -58,6 +64,22 @@ try {
         exit;
     }
     $_SESSION['ajax_times'][] = $now;
+
+    // Validate CSRF token
+    $csrf_token = Request::input('csrf_token', '');
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrf_token)) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => [
+                'id' => 'csrf_validation_failed',
+                'message' => 'Invalid request token. Please refresh the page and try again.',
+                'hint' => 'Security token expired or invalid'
+            ],
+            'request_id' => $request_id
+        ]);
+        exit;
+    }
 
     $name  = trim(Request::input('name'));
     $email = trim(Request::input('email'));
@@ -122,7 +144,7 @@ try {
     $ajaxMode = ($apiKey !== '' && !ModeHelper::isMock());
     if (!$ajaxMode) {
         echo json_encode([
-            'ok' => false,
+            'success' => false,
             'error' => [
                 'id' => 'ajax_mode_disabled',
                 'message' => 'AJAX mode disabled: OpenAI key not set or in mock mode',
@@ -134,7 +156,7 @@ try {
     }
     if ($errors) {
         echo json_encode([
-            'ok' => false,
+            'success' => false,
             'error' => [
                 'id' => 'validation_failed',
                 'message' => implode('. ', $errors),
@@ -227,7 +249,7 @@ try {
             
             error_log('AI provider exception id='.$request_id.' msg='.$e->getMessage());
             echo json_encode([
-                'ok' => false,
+                'success' => false,
                 'error' => [
                     'id' => 'ai_service_error',
                     'message' => 'AI service error. Please try again later.',
@@ -273,13 +295,15 @@ try {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? '';
     $ticketUrl = $scheme . '://' . $host . '/?page=ticket&ref=' . rawurlencode((string)$ref);
-    echo json_encode(['ok'=>true,'ai_reply'=>$ai['reply'],'ticket_url'=>$ticketUrl,'request_id'=>$request_id]);
+    echo json_encode(['success'=>true,'ai_reply'=>$ai['reply'],'ticket_url'=>$ticketUrl,'request_id'=>$request_id]);
     exit;
 } catch (\Throwable $e) {
+    ob_clean(); // Clear any output before sending error response
     error_log('AJAX fatal id='.$request_id.' msg='.$e->getMessage());
     http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
-        'ok' => false,
+        'success' => false,
         'error' => [
             'id' => 'server_error',
             'message' => 'Server error',
