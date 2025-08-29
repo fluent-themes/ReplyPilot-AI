@@ -49,7 +49,8 @@ $publicUrl = $scheme . '://' . $host . $appBase . '/public/index.php';
   </details>
 
   <div style="margin-top:12px">
-    <a href="export_csv.php" class="btn" style="display:inline-block;padding:8px 12px;border:1px solid #ccc;border-radius:4px;text-decoration:none">Export CSV</a>
+    <?php if (!isset($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); ?>
+    <a href="export_csv.php?csrf_token=<?= urlencode($_SESSION['csrf_token']) ?>" class="btn" style="display:inline-block;padding:8px 12px;border:1px solid #ccc;border-radius:4px;text-decoration:none">Export CSV</a>
   </div>
 </div>
 
@@ -84,12 +85,15 @@ $publicUrl = $scheme . '://' . $host . $appBase . '/public/index.php';
         <pre style="white-space:pre-wrap;border:1px solid #eee;padding:8px;border-radius:4px"><?= htmlspecialchars($r['message'] ?? '') ?></pre>
 
         <h3 style="margin:8px 0">AI Reply (Preview)</h3>
-        <pre style="white-space:pre-wrap;border:1px solid #eee;padding:8px;border-radius:4px" id="ai-reply-<?= (int)$r['id'] ?>"><?= htmlspecialchars($r['ai_reply'] ?? '') ?></pre>
+        <button type="button" onclick="generateAIReply(<?= (int)$r['id'] ?>)" class="btn">Generate AI Reply</button>
+        <pre style="white-space:pre-wrap;border:1px solid #eee;padding:8px;border-radius:4px;margin-top:8px" id="ai-reply-<?= (int)$r['id'] ?>"><?= htmlspecialchars($r['ai_reply'] ?? '') ?></pre>
       </div>
 
       <div style="flex:1;min-width:280px">
         <h3 style="margin:8px 0">Reply via Email</h3>
         <form method="post" action="send_email.php" style="margin-bottom:12px">
+          <?php if (!isset($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); ?>
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
           <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
           <label>To<br><input name="to" value="<?= htmlspecialchars($r['email'] ?? '') ?>" style="width:100%"></label><br>
           <label>Subject<br><input name="subject" value="Re: Your message to <?= htmlspecialchars($r['product_name'] ?? '') ?>" style="width:100%"></label><br>
@@ -99,6 +103,7 @@ $publicUrl = $scheme . '://' . $host . $appBase . '/public/index.php';
 
         <h3 style="margin:8px 0">Edit AI Reply / Category</h3>
         <form method="post" action="update_reply.php" id="edit-form-<?= (int)$r['id'] ?>">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
           <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
           <label>Category<br>
             <select name="category" style="width:100%">
@@ -144,6 +149,16 @@ function saveAndEmail(id){
   document.getElementById('body-hidden-' + id).value = text;
   document.getElementById('send-flag-' + id).value = '1';
   document.getElementById('edit-form-' + id).submit();
+}
+function generateAIReply(id) {
+    fetch('generate_ai_reply.php?id=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (data.reply) {
+                document.getElementById('ai-reply-' + id).textContent = data.reply;
+                document.getElementById('ai-reply-input-' + id).value = data.reply;
+            }
+        });
 }
 </script>
 <?php $content = ob_get_clean(); include __DIR__.'/layout.php'; ?>
