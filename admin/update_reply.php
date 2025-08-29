@@ -46,6 +46,13 @@ if ($send && $to && $subject && $body) {
         exit;
     }
     
+    // Check email length (RFC 5321 specifies max 254 chars)
+    if (strlen($to) > 254) {
+        $anchor = urlencode("row-$id");
+        header("Location: ./?status=email_too_long#$anchor");
+        exit;
+    }
+    
     // Sanitize subject to prevent header injection
     $subject = str_replace(["\r", "\n"], '', $subject);
     
