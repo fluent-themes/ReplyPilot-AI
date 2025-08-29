@@ -496,6 +496,25 @@ $saved = isset($_GET['saved']) && $_GET['saved'] == '1';
               <div class="setting-help">Maximum tokens per AI request</div>
             </div>
           </div>
+
+          <div class="setting-row">
+            <div class="setting-label">Installer Token</div>
+            <div class="setting-control">
+              <input type="password" name="installer_token" placeholder="Leave blank to keep current">
+              <div class="setting-help">Change the admin access token (updates .env file)</div>
+              <div class="setting-help" style="color:#666;font-size:11px">
+                Current token is set (hidden for security). Change only if needed.
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-label">Debug Mode</div>
+            <div class="setting-control">
+              <label><input type="checkbox" name="app_debug" <?= \App\Core\Env::get('APP_DEBUG', false) ? 'checked' : '' ?>> Enable debug mode (shows detailed errors)</label>
+              <div class="setting-help">⚠️ Disable in production</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -525,8 +544,12 @@ $saved = isset($_GET['saved']) && $_GET['saved'] == '1';
     // Show saved toast
     <?php if ($saved): ?>
       const toast = document.getElementById('toast');
+      <?php if (isset($_SESSION['token_updated_notice'])): ?>
+        toast.textContent = '<?= htmlspecialchars($_SESSION['token_updated_notice']) ?>';
+        <?php unset($_SESSION['token_updated_notice']); ?>
+      <?php endif; ?>
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3000);
+      setTimeout(() => toast.classList.remove('show'), 5000);
     <?php endif; ?>
 
     // Provider testing functions
