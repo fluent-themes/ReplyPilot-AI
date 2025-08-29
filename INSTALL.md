@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide covers the installation of ReplyPilot AI v6 on various platforms.
+This guide covers the installation of ReplyPilot AI on various platforms.
 
 ## System Requirements
 
@@ -163,39 +163,6 @@ chmod 755 storage/
 chmod 755 storage/logs/
 chmod 755 storage/mail/
 ```
-
-### Method 3: Laragon Installation (Windows)
-
-For Windows developers using Laragon.
-
-#### Step 1: Setup Laragon Project
-
-1. Create new project in Laragon
-2. Extract ReplyPilot AI to the project folder
-
-#### Step 2: Configure Environment
-
-```bash
-cp .env.LaragonExample .env
-```
-
-Edit `.env` with Laragon-specific settings:
-```env
-DB_HOST=localhost
-DB_NAME=replypilot_local
-DB_USER=root
-DB_PASS=
-```
-
-#### Step 3: Use Laragon Bootstrap
-
-The system includes `Laragon_bootstrap.php` for local development with proper session handling.
-
-#### Step 4: Create Virtual Host
-
-In Laragon, create a virtual host pointing to the public directory.
-
-See `docs/LARAGON_SETUP_STEPS.md` for detailed Laragon instructions.
 
 ## Post-Installation
 
