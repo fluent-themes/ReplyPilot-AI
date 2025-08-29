@@ -89,7 +89,7 @@ systemctl restart apache2
 **IMPORTANT**: After installation, immediately:
 
 1. Change the default installer token:
-   - Login to admin panel: `https://yourdomain.com/admin/`
+   - Login to admin panel: `https://yourdomain.com/admin/?token=setup123`
    - Go to Settings → Advanced Settings
    - Update the installer token
    - Save changes
@@ -170,7 +170,7 @@ chmod 755 storage/mail/
 
 1. Check the application loads without errors
 2. Test form submission at `/`
-3. Login to admin panel at `/admin/`
+3. Visit admin panel at `/admin/?token=setup123`
 4. Send a test email from admin panel
 5. Verify AI provider connection in settings
 
@@ -223,7 +223,7 @@ For automated tasks, add to crontab:
 
 1. Check documentation in `docs/` directory
 2. Review `docs/DEBUG.md` for debugging tips
-3. Contact support: support@fluentthemes.com
+3. Contact support: mazharul.islam@fluentthemes.com
 
 ## Updating
 
