@@ -16,7 +16,20 @@ if (ModeHelper::isMock() || !$db) {
     ];
 } else {
     try {
-        $stmt = $db->query('SELECT * FROM submissions ORDER BY id DESC LIMIT 100');
+        // Pagination support
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $limit = 50;
+        $offset = ($page - 1) * $limit;
+        
+        // Handle search with prepared statements to prevent SQL injection
+        if (!empty($_GET['q'])) {
+            $searchTerm = '%' . $_GET['q'] . '%';
+            $stmt = $db->prepare('SELECT * FROM submissions WHERE name LIKE ? OR email LIKE ? OR message LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?');
+            $stmt->execute([$searchTerm, $searchTerm, $searchTerm, $limit, $offset]);
+        } else {
+            $stmt = $db->prepare('SELECT * FROM submissions ORDER BY id DESC LIMIT ? OFFSET ?');
+            $stmt->execute([$limit, $offset]);
+        }
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (\Throwable $e) {
         $rows = [];
