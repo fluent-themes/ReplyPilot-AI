@@ -10,6 +10,18 @@ if (session_status() === PHP_SESSION_NONE) {
 // Check session validity with timeout
 $valid = isset($_SESSION['rpai_admin_unlocked']) && $_SESSION['rpai_admin_unlocked'] === true;
 
+// Check IP whitelist if configured
+use App\Support\Settings;
+$allowedIps = Settings::get('admin_ip_whitelist', '');
+if ($allowedIps && $valid) {
+    $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
+    $ipList = array_map('trim', explode(',', $allowedIps));
+    if (!in_array($clientIp, $ipList, true)) {
+        $valid = false;
+        error_log("Admin access denied for IP: $clientIp");
+    }
+}
+
 // Check session timeout (30 minutes)
 if ($valid && isset($_SESSION['rpai_admin_timeout'])) {
     if (time() > $_SESSION['rpai_admin_timeout']) {
